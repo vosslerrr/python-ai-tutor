@@ -1,1 +1,3 @@
 To run this locally, you must download the gguf model from: https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/blob/main/qwen2.5-3b-instruct-q3_k_m.gguf
+
+Once downloaded, place the file in the models folder.
