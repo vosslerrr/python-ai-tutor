@@ -2,8 +2,15 @@ To run this locally, you must download the gguf model from: https://huggingface.
 
 Once downloaded, place the file in the models folder inside of the tutor file.
 
-pip install
--flask
--llama-cpp-python
--markdown
--requests
+### <ins>pip install<ins>\
+- flask\
+- llama-cpp-python\
+- markdown\
+- requests\
+
+### HOW TO RUN\
+once the above steps are complete, open the command prompt and cd into the project folder.\
+then run the following command:\
+```
+python web/app.py
+```
