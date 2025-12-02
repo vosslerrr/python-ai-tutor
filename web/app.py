@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import markdown
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, Response, render_template, request, jsonify
 from tutor.tutor_core import AITutor
 
 app = Flask(__name__)
@@ -13,18 +13,18 @@ tutor = AITutor()
 def index():
     return render_template("index.html")
 
-@app.route("/ask", methods=["POST"])
-def ask():
-    user_message = request.json["message"]
+@app.route("/stream", methods=["POST"])
+def stream():
+    data = request.get_json()
+    user_message = data.get("message", "")
 
-    raw_reply = tutor.auto(user_message)
+    def generate():
+        for chunk in tutor.stream(user_message):
+            yield f"data: {chunk}\n\n"
 
-    html_reply = markdown.markdown(
-        raw_reply,
-        extensions=["fenced_code", "tables", "nl2br"]
-    )
+        yield "data: [DONE]\n\n"
 
-    return jsonify({"reply": html_reply})
+    return Response(generate(), mimetype="text/event-stream")
 
 if __name__ == "__main__":
     app.run(debug=True)

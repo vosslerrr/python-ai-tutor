@@ -1,6 +1,6 @@
-To run this locally, you must download the gguf model from: https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/blob/main/qwen2.5-3b-instruct-q3_k_m.gguf
+To run this locally, you must download the hugging face gguf model from: https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/blob/main/qwen2.5-3b-instruct-q3_k_m.gguf
 
-Once downloaded, place the file in the models folder inside of the tutor file.
+Once downloaded, place the file in the models folder inside of the tutor folder, then install the required packages below.
 
 ### <ins>pip install<ins>
 - flask
