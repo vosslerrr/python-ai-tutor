@@ -80,3 +80,25 @@ class AITutor:
             return self._ask(modes.concept_explainer(text))
 
         return self._ask(f"Give helpful feedback:\n{text}")
+    
+    # ------------------------------------------------------------------
+    # STREAM
+    # ------------------------------------------------------------------
+    def stream(self, user_message):
+        prompt = self._chat_prompt(user_message)
+
+        # llama.cpp generator (streaming)
+        for chunk in self.engine.generate_stream(prompt):
+            text = self._clean_output(chunk)
+            if text.strip():
+                yield text
+
+        # Save final answer (non-streamed)
+        final_answer = self.engine.generate(prompt)
+        final_answer = self._clean_output(final_answer)
+
+        self.history.append({
+            "user": user_message,
+            "tutor": final_answer
+        })
+
