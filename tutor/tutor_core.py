@@ -77,3 +77,6 @@ class AITutor:
             return self._ask(modes.concept_explainer(text))
 
         return self._ask(f"Give helpful feedback:\n{text}")
+
+    def chat(self, message):
+        return self.auto(message)
