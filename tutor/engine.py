@@ -16,8 +16,16 @@ class LlamaEngine:
 
     def generate(self, prompt, max_tokens=300):
         output = self.model(
-            prompt=prompt,
+            prompt,
             max_tokens=max_tokens,
-            stop=["</assistant>", "</user>"]
+            temperature=0.7,
+            top_p=0.9,
+            repeat_penalty=1.05,
+            stop=["</assistant>", "</user>"],
+            echo=False
         )
-        return output["choices"][0]["text"]
+        text = output["choices"][0]["text"]
+
+        text = text.replace("\\n", "\n").replace("\r", "")
+
+        return text.strip()

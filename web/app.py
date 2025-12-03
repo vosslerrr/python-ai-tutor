@@ -16,8 +16,6 @@ def index():
 def ask():
     data = request.get_json()
     user_message = data.get("message", "")
-
-    # Normal non-streaming response
     reply = tutor.chat(user_message)
 
     return jsonify({"reply": reply})
