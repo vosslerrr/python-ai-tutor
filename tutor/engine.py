@@ -1,34 +1,27 @@
-import re
 from llama_cpp import Llama
-from tutor.config import MODEL_PATH, N_CTX, N_THREADS, N_GPU_LAYERS, TEMPERATURE, TOP_P, MAX_TOKENS
+from tutor.config import MODEL_PATH
 
 class LlamaEngine:
     def __init__(self):
-        print("Loading GGUF model...")
-        self.llm = Llama(
+        print("[LlamaEngine] Loading model:", MODEL_PATH)
+        
+        self.model = Llama(
             model_path=MODEL_PATH,
-            n_ctx=N_CTX,
-            n_threads=N_THREADS,
-            n_gpu_layers=N_GPU_LAYERS,
+            n_ctx=4096,
+            n_threads=6,
+            n_gpu_layers=0,
             verbose=False
         )
 
-    def _clean(self, text):
-        text = re.sub(r"^llama_perf_context_print.*\n?", "", text, flags=re.MULTILINE)
-        return text.strip()
-
-    def generate(self, prompt):
-        output = self.llm(
+    def generate(self, prompt, max_tokens=300):
+        output = self.model(
             prompt,
-            max_tokens=MAX_TOKENS,
-            temperature=TEMPERATURE,
-            top_p=TOP_P,
+            max_tokens=max_tokens,
+            stop=["</assistant>", "</user>"]
         )
-        return self._clean(output["choices"][0]["text"])
-    
-    def generate_stream(self, prompt):
-        for out in self.model(prompt, stream=True):
-            yield out["choices"][0]["text"]
+        return output["choices"][0]["text"]
 
-    def count_tokens(self, text):
-        return len(self.llm.tokenize(text.encode()))
+    def generate_stream(self, prompt):
+        for chunk in self.model(prompt, stream=True):
+            token = chunk["choices"][0]["text"]
+            yield token
