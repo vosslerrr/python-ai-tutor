@@ -108,66 +108,40 @@
     function addMessage(role, html) {
         const div = document.createElement("div");
         div.classList.add("message", role === "You" ? "you" : "tutor");
-        div.innerHTML = `<strong>${role}:</strong><br><span class="content"></span>`;
+        div.innerHTML = `<strong>${role}:</strong><br>${html}`;
         messages.appendChild(div);
         messages.scrollTop = messages.scrollHeight;
-        return div.querySelector(".content");
     }
 
     async function sendMessage() {
-        const text = userInput.value.trim();
+        let text = userInput.value.trim();
         if (!text) return;
 
-        const userBox = addMessage("You", text);
-        userBox.innerText = text;
-
+        addMessage("You", text);
         userInput.value = "";
 
         spinner.style.display = "block";
 
-        const response = await fetch("/stream", {
+        const response = await fetch("/ask", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: text })
         });
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-
-        const tutorBox = addMessage("Tutor", "");
-        let fullText = "";
-
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value);
-            const lines = chunk.split("\n");
-
-            for (let line of lines) {
-                if (line.startsWith("data: ")) {
-                    let content = line.replace("data: ", "");
-
-                    if (content === "[DONE]") {
-                        spinner.style.display = "none";
-                        return;
-                    }
-
-                    fullText += content;
-                    tutorBox.innerHTML = fullText;
-                    messages.scrollTop = messages.scrollHeight;
-                }
-            }
-        }
+        const data = await response.json();
 
         spinner.style.display = "none";
+
+        addMessage("Tutor", data.reply);
     }
 
     sendBtn.addEventListener("click", sendMessage);
-    userInput.addEventListener("keydown", e => {
+
+    userInput.addEventListener("keydown", function (e) {
         if (e.key === "Enter") sendMessage();
     });
 </script>
+
 
 
 </body>

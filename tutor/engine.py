@@ -4,7 +4,7 @@ from tutor.config import MODEL_PATH
 class LlamaEngine:
     def __init__(self):
         print("[LlamaEngine] Loading model:", MODEL_PATH)
-        
+
         self.model = Llama(
             model_path=MODEL_PATH,
             n_ctx=4096,
@@ -16,7 +16,7 @@ class LlamaEngine:
 
     def generate(self, prompt, max_tokens=300):
         output = self.model(
-            prompt,
+            prompt=prompt,
             max_tokens=max_tokens,
             stop=["</assistant>", "</user>"]
         )
