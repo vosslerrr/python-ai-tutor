@@ -87,18 +87,16 @@ class AITutor:
     def stream(self, user_message):
         prompt = self._chat_prompt(user_message)
 
-        # llama.cpp generator (streaming)
+        collected = ""
+
         for chunk in self.engine.generate_stream(prompt):
-            text = self._clean_output(chunk)
-            if text.strip():
-                yield text
+            cleaned = self._clean_output(chunk)
+            if cleaned:
+                collected += cleaned
+                yield cleaned
 
-        # Save final answer (non-streamed)
-        final_answer = self.engine.generate(prompt)
-        final_answer = self._clean_output(final_answer)
-
+        # Save conversation history
         self.history.append({
             "user": user_message,
-            "tutor": final_answer
+            "tutor": collected
         })
-
