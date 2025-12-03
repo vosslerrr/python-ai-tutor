@@ -11,8 +11,8 @@ class AITutor:
     # CLEAN OUTPUT
     # ------------------------------------------------------------------
     def _clean_output(self, text):
-        text = re.sub(r"</?(user|assistant)>", "", text)
         text = re.sub(r"^(Tutor|Assistant)\s*[:\-]*\s*", "", text, flags=re.IGNORECASE)
+        text = re.sub(r"(#+\s*Practice Exercise\s*){2,}", "### Practice Exercise\n", text)
 
         lines = text.split("\n")
         cleaned = []
@@ -22,29 +22,26 @@ class AITutor:
 
         return "\n".join(cleaned).strip()
 
-
     # ------------------------------------------------------------------
     # PROMPT BUILDER
     # ------------------------------------------------------------------
     def _chat_prompt(self, user_message):
         prompt = (
             "You are a friendly Python tutor. "
-            "You help explain concepts, debug code, and create practice exercises. "
-            "Always format responses using clean Markdown. "
-            "Do NOT repeat earlier conversation. "
-            "Do NOT answer previous questions again. "
-            "Only answer the most recent user question.\n\n"
+            "You explain concepts clearly, give examples, debug code, and create simple exercises. "
+            "ALWAYS respond in clean Markdown. "
+            "NEVER repeat earlier conversation text. "
+            "NEVER include 'User:' or 'Tutor:' in your output.\n\n"
         )
 
         for msg in self.history:
-            prompt += f"<user>{msg['user']}</user>\n"
-            prompt += f"<assistant>{msg['tutor']}</assistant>\n"
+            prompt += f"User asked: {msg['user']}\n"
+            prompt += f"You answered: {msg['tutor']}\n\n"
 
-        prompt += f"<user>{user_message}</user>\n"
-        prompt += "<assistant>"
+        prompt += f"User asked: {user_message}\n"
+        prompt += "Your answer:\n"
 
         return prompt
-
 
     # ------------------------------------------------------------------
     # MAIN ASK METHOD
@@ -80,23 +77,3 @@ class AITutor:
             return self._ask(modes.concept_explainer(text))
 
         return self._ask(f"Give helpful feedback:\n{text}")
-    
-    # ------------------------------------------------------------------
-    # STREAM
-    # ------------------------------------------------------------------
-    def stream(self, user_message):
-        prompt = self._chat_prompt(user_message)
-
-        collected = ""
-
-        for chunk in self.engine.generate_stream(prompt):
-            cleaned = self._clean_output(chunk)
-            if cleaned:
-                collected += cleaned
-                yield cleaned
-
-        # Save conversation history
-        self.history.append({
-            "user": user_message,
-            "tutor": collected
-        })

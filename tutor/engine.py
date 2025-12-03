@@ -9,7 +9,8 @@ class LlamaEngine:
             model_path=MODEL_PATH,
             n_ctx=4096,
             n_threads=6,
-            n_gpu_layers=0,
+            add_bos_token=True,
+            chat_format="qwen2",
             verbose=False
         )
 
@@ -20,8 +21,3 @@ class LlamaEngine:
             stop=["</assistant>", "</user>"]
         )
         return output["choices"][0]["text"]
-
-    def generate_stream(self, prompt):
-        for chunk in self.model(prompt, stream=True):
-            token = chunk["choices"][0]["text"]
-            yield token
