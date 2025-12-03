@@ -25,6 +25,10 @@ class LlamaEngine:
             top_p=TOP_P,
         )
         return self._clean(output["choices"][0]["text"])
+    
+    def generate_stream(self, prompt):
+        for out in self.model(prompt, stream=True):
+            yield out["choices"][0]["text"]
 
     def count_tokens(self, text):
         return len(self.llm.tokenize(text.encode()))
